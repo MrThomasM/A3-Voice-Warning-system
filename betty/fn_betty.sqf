@@ -1,14 +1,16 @@
 /*
 	Author: MrThomasM
 
-	Description: Handles the voice warning system for CSAT.
+	Description: Handles the voice warning system for NATO.
 */
 
-waitUntil {sleep 0.1; (typeOf objectParent player) in (getArray (missionConfigFile >> "voiceWarningSystem" >> "east" >> "general")) || {!(alive player)}};
+waitUntil {sleep 0.1; (typeOf objectParent player) in (getArray (missionConfigFile >> "voiceWarningSystem" >> "west" >> "general")) || {!(alive player)}};
 
 if !(alive player) exitWith {};
 _v = (objectParent player);
 
+_v setVariable ["currentTargets", []];
+_v setVariable ["newTargets", []];
 _v setVariable ["altCeiling", 2000];
 _v setVariable ["isBettyBitching", false];
 _v setVariable ["landingGear", true];
@@ -29,37 +31,33 @@ _v addEventHandler ["Killed", {
 	_unit removeAllEventHandlers "Killed";
 }];
 
-if (typeOf (vehicle player) == "O_Heli_Attack_02_dynamicLoadout_F") then {
-	(vehicle player) setVariable ["landingGear", false];
-};
-
 0 spawn {
-	while {(typeOf (objectParent player) in (getArray (missionConfigFile >> "voiceWarningSystem" >> "east" >> "pullUp"))) && {alive player}} do {
-		_v = objectParent player;
+	while {(typeOf (objectParent player) in (getArray (missionConfigFile >> "voiceWarningSystem" >> "west" >> "pullUp"))) && {alive player}} do {
+		_v = (objectParent player);
 		if !(_v getVariable "isBettyBitching") then {
 			if (getPosATL player select 2 <= _v getVariable "altCeiling" && {getPosATL player select 2 > 100 && {_v getVariable "landingGear" == false}}) then {
 				if (asin (vectorDir _v select 2) < - (((getPosATL player select 2) * 40) / speed _v)) then {
-					playSoundUI ["pullUpRita", (getMissionConfigValue ["pullUp", 0.3]), 1];
+					playSoundUI ["pullUp", (getMissionConfigValue ["pullUp", 0.3]), 1];
 					_v setVariable ["isBettyBitching", true];
-					private _startTime = serverTime + 2;
+					private _startTime = serverTime + 1.33;
 					waitUntil {serverTime > _startTime};
 					_v setVariable ["isBettyBitching", false];
 				};
 			};
 		};
-		private _startTime1 = serverTime + 0.2;
+		private _startTime1 = serverTime + 0.2;  
 		waitUntil {serverTime > _startTime1};
 	};
 };
 
 0 spawn {
-	while {(typeOf (objectParent player) in (getArray (missionConfigFile >> "voiceWarningSystem" >> "east" >> "altitude"))) && {alive player}} do {
-		_v = objectParent player;
+	while {(typeOf (objectParent player) in (getArray (missionConfigFile >> "voiceWarningSystem" >> "west" >> "altitude"))) && {alive player}} do {
+		_v = (objectParent player);
 		if !(_v getVariable "isBettyBitching") then {
 			if ((getPosATL player select 2) < 100 && {_v getVariable "landingGear" == false}) then {
-				playSoundUI ["altRita", (getMissionConfigValue ["altitude", 0.3]), 1];
+				playSoundUI ["altWarning", (getMissionConfigValue ["altitude", 0.3]), 1];
 				_v setVariable ["isBettyBitching", true];
-				private _startTime = serverTime + 1.7;
+				private _startTime = serverTime + 3; 
 				waitUntil {serverTime > _startTime};
 				_v setVariable ["isBettyBitching", false];
 			};
@@ -70,13 +68,13 @@ if (typeOf (vehicle player) == "O_Heli_Attack_02_dynamicLoadout_F") then {
 };
 
 0 spawn {
-	while {(typeOf (objectParent player) in (getArray (missionConfigFile >> "voiceWarningSystem" >> "east" >> "general"))) && {alive player}} do {
-		_v = objectParent player;
+	while {(typeOf (objectParent player) in (getArray (missionConfigFile >> "voiceWarningSystem" >> "west" >> "general"))) && {alive player}} do {
+		_v = (objectParent player);
 		if (fuel _v < 0.2) then {
-			playSoundUI ["fuelRita", (getMissionConfigValue ["fuel", 0.3]), 1]; 
+			playSoundUI ["bingoFuel", (getMissionConfigValue ["fuel", 0.3]), 1];
 			_v setVariable ["isBettyBitching", true];
-			private _startTime = serverTime + 1.9;  
-			waitUntil {serverTime > _startTime}; 
+			private _startTime1 = serverTime + 1.6;  
+			waitUntil {serverTime > _startTime1};
 			_v setVariable ["isBettyBitching", false];				
 		};
 		private _startTime1 = serverTime + 2;  
@@ -84,10 +82,29 @@ if (typeOf (vehicle player) == "O_Heli_Attack_02_dynamicLoadout_F") then {
 	};
 };
 
+//Sensor targets
 0 spawn {
-	while {(typeOf (objectParent player) in (getArray (missionConfigFile >> "voiceWarningSystem" >> "east" >> "general"))) && {alive player}} do {
-		_v = objectParent player;
-		if (_v getVariable "isBettyBitching") then {
+	while {(typeOf (objectParent player) in (getArray (missionConfigFile >> "voiceWarningSystem" >> "west" >> "general"))) && {alive player}} do {
+		_v = (objectParent player);
+		_v setVariable ["newTargets", getSensorTargets _v];
+		if (count (_v getVariable "newTargets") > count (_v getVariable "currentTargets")) then {
+			playSoundUI ["radarTargetNew", (getMissionConfigValue ["incomming", 0.3]), 1];
+			sleep 0.1;
+		};
+
+		if (count (_v getVariable "newTargets") < count (_v getVariable "currentTargets")) then {
+			playSoundUI ["radarTargetLost", (getMissionConfigValue ["incomming", 0.3]), 1];
+			sleep 0.1;
+		};
+		_v setVariable ["currentTargets", _v getVariable "newTargets"];
+		sleep 1;
+	};
+};
+
+0 spawn {
+	while {(typeOf (objectParent player) in (getArray (missionConfigFile >> "voiceWarningSystem" >> "west" >> "general"))) && {alive player}} do {
+		_v = (objectParent player);
+		if !(_v getVariable "isBettyBitching") then {
 			if (count (_v getVariable ["Incomming", []]) > 0) then {
 				_v setVariable ["isBettyBitching", true];
 				_incomming = ((_v getVariable "Incomming") # 0);
@@ -110,8 +127,8 @@ if (typeOf (vehicle player) == "O_Heli_Attack_02_dynamicLoadout_F") then {
 						_fDir = 270;
 					};
 				};
-				_sound = format ["incMissileRuss_%1", _fDir];
-				playSoundUI [_sound, ((getMissionConfigValue ["incomming", 0.3]) + 0.2), 1];
+				_sound = format ["incMissile_%1", _fDir];
+				playSoundUI [_sound, ((getMissionConfigValue ["incomming", 0.3]) + 0.3), 1];
 				sleep 2.3;
 				_v setVariable ["isBettyBitching", false];
 			};
