@@ -1,6 +1,7 @@
-# A3-Voice-Warning-system
+# Installation
+If your code already containts files from this repository simply copy paste the content of the code into your own code. 
+for example: initPlayerLocal is commonly used so if you have this just copy the contents from mine to yours. 
+The placement of the 'betty.sqf' and 'rita.sqf' is not very important as long as you define their location correctly in 'description.ext >> cfgFunctions'.
 
-This is an arma 3 version for the real life 'Bitching Betty' and Rita voice warning system on aircrafts.
-
-# Credits
+## Credits
 It would be much appreciated to keep me as original author of the code.
