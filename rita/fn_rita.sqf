@@ -36,7 +36,7 @@ if (typeOf (vehicle player) == "O_Heli_Attack_02_dynamicLoadout_F") then {
 0 spawn {
 	while {(typeOf (objectParent player) in (getArray (missionConfigFile >> "voiceWarningSystem" >> "east" >> "pullUp"))) && {alive player}} do {
 		_v = objectParent player;
-		if ((profileNamespace getVariable ["MRTM_EnableRWR", true]) && {!(_v getVariable "isBettyBitching")}) then {
+		if !(_v getVariable "isBettyBitching") then {
 			if (getPosATL player select 2 <= _v getVariable "altCeiling" && {getPosATL player select 2 > 100 && {_v getVariable "landingGear" == false}}) then {
 				if (asin (vectorDir _v select 2) < - (((getPosATL player select 2) * 40) / speed _v)) then {
 					playSoundUI ["pullUpRita", (getMissionConfigValue ["pullUp", 0.3]), 1];
@@ -55,7 +55,7 @@ if (typeOf (vehicle player) == "O_Heli_Attack_02_dynamicLoadout_F") then {
 0 spawn {
 	while {(typeOf (objectParent player) in (getArray (missionConfigFile >> "voiceWarningSystem" >> "east" >> "altitude"))) && {alive player}} do {
 		_v = objectParent player;
-		if ((profileNamespace getVariable ["MRTM_EnableRWR", true]) && {!(_v getVariable "isBettyBitching")}) then {
+		if !(_v getVariable "isBettyBitching") then {
 			if ((getPosATL player select 2) < 100 && {_v getVariable "landingGear" == false}) then {
 				playSoundUI ["altRita", (getMissionConfigValue ["altitude", 0.3]), 1];
 				_v setVariable ["isBettyBitching", true];
@@ -72,14 +72,12 @@ if (typeOf (vehicle player) == "O_Heli_Attack_02_dynamicLoadout_F") then {
 0 spawn {
 	while {(typeOf (objectParent player) in (getArray (missionConfigFile >> "voiceWarningSystem" >> "east" >> "general"))) && {alive player}} do {
 		_v = objectParent player;
-		if (profileNamespace getVariable ["MRTM_EnableRWR", true]) then {
-			if (fuel _v < 0.2) then {
-				playSoundUI ["fuelRita", (getMissionConfigValue ["fuel", 0.3]), 1]; 
-				_v setVariable ["isBettyBitching", true];
-				private _startTime = serverTime + 1.9;  
-				waitUntil {serverTime > _startTime}; 
-				_v setVariable ["isBettyBitching", false];				
-			};
+		if (fuel _v < 0.2) then {
+			playSoundUI ["fuelRita", (getMissionConfigValue ["fuel", 0.3]), 1]; 
+			_v setVariable ["isBettyBitching", true];
+			private _startTime = serverTime + 1.9;  
+			waitUntil {serverTime > _startTime}; 
+			_v setVariable ["isBettyBitching", false];				
 		};
 		private _startTime1 = serverTime + 2;  
 		waitUntil {serverTime > _startTime1};
@@ -89,7 +87,7 @@ if (typeOf (vehicle player) == "O_Heli_Attack_02_dynamicLoadout_F") then {
 0 spawn {
 	while {(typeOf (objectParent player) in (getArray (missionConfigFile >> "voiceWarningSystem" >> "east" >> "general"))) && {alive player}} do {
 		_v = objectParent player;
-		if ((profileNamespace getVariable ["MRTM_EnableRWR", true]) && {!(_v getVariable "isBettyBitching")}) then {
+		if (_v getVariable "isBettyBitching") then {
 			if (count (_v getVariable ["Incomming", []]) > 0) then {
 				_v setVariable ["isBettyBitching", true];
 				_incomming = ((_v getVariable "Incomming") # 0);
